@@ -78,26 +78,41 @@
         android:orientation="horizontal"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/totalTextView"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Total: Rp0 | 0 item"
-            android:textColor="@color/dw_teal"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total Belanja"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/totalTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Rp 0"
+                android:textColor="@color/text_primary"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/payButton"
+            android:id="@+id/btnBayar"
             android:layout_width="wrap_content"
-            android:layout_height="52dp"
+            android:layout_height="48dp"
             android:background="@drawable/button_gradient"
-            android:paddingStart="24dp"
-            android:paddingEnd="24dp"
+            android:paddingStart="32dp"
+            android:paddingEnd="32dp"
             android:text="BAYAR"
             android:textColor="@color/text_primary"
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:textStyle="bold"
             app:backgroundTint="@null" />
 

@@ -29,6 +29,7 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.text.NumberFormat
 import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -37,6 +38,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var previewView: PreviewView
     private lateinit var totalTextView: TextView
+    private lateinit var btnBayar: MaterialButton
     private lateinit var laserLine: ImageView
     private lateinit var laserAnimator: ObjectAnimator
     private lateinit var cameraExecutor: ExecutorService
@@ -65,6 +67,7 @@ class MainActivity : AppCompatActivity() {
 
         previewView = findViewById(R.id.previewView)
         totalTextView = findViewById(R.id.totalTextView)
+        btnBayar = findViewById(R.id.btnBayar)
         laserLine = findViewById(R.id.laserLine)
         laserAnimator = ObjectAnimator.ofFloat(laserLine, View.TRANSLATION_Y, -120f, 120f).apply {
             duration = 1500L
@@ -241,7 +244,7 @@ class MainActivity : AppCompatActivity() {
             product?.name ?: "Product Not Found"
         view.findViewById<TextView>(R.id.barcodeTextView).text = barcode
         view.findViewById<TextView>(R.id.priceTextView).text =
-            product?.let { "Rp${formatPrice(it.price)}" } ?: "-"
+            product?.let { formatCurrency(it.price) } ?: "-"
 
         val addToCartButton = view.findViewById<MaterialButton>(R.id.addToCartButton)
         if (product == null) {
@@ -268,15 +271,25 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateTotal() {
         val total = cart.sumOf { it.price }
-        totalTextView.text = "Total: Rp${formatPrice(total)} | ${cart.size} item"
+        totalTextView.text = formatCurrency(total)
+
+        if (total <= 0.0) {
+            btnBayar.isEnabled = false
+            btnBayar.alpha = 0.5f
+        } else {
+            btnBayar.isEnabled = true
+            btnBayar.alpha = 1f
+            btnBayar.setBackgroundResource(R.drawable.button_gradient)
+        }
     }
 
-    private fun formatPrice(value: Double): String =
-        if (value % 1.0 == 0.0) {
-            value.toLong().toString()
-        } else {
-            String.format(Locale.US, "%.2f", value)
+    private fun formatCurrency(value: Double): String {
+        val formatter = NumberFormat.getNumberInstance(Locale("id", "ID")).apply {
+            minimumFractionDigits = 0
+            maximumFractionDigits = 2
         }
+        return "Rp ${formatter.format(value)}"
+    }
 
     override fun onDestroy() {
         super.onDestroy()
