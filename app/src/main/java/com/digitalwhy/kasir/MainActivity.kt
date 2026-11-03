@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity() {
         totalTextView = findViewById(R.id.totalTextView)
         btnBayar = findViewById(R.id.btnBayar)
         laserLine = findViewById(R.id.laserLine)
-        laserAnimator = ObjectAnimator.ofFloat(laserLine, View.TRANSLATION_Y, -120f, 120f).apply {
+        laserAnimator = ObjectAnimator.ofFloat(laserLine, View.TRANSLATION_Y, -180f, 180f).apply {
             duration = 1500L
             repeatMode = ValueAnimator.REVERSE
             repeatCount = ValueAnimator.INFINITE
