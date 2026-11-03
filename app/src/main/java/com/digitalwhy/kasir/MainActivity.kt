@@ -1,10 +1,13 @@
 package com.digitalwhy.kasir
 
 import android.Manifest
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -34,6 +37,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var previewView: PreviewView
     private lateinit var totalTextView: TextView
+    private lateinit var laserLine: ImageView
+    private lateinit var laserAnimator: ObjectAnimator
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var barcodeScanner: BarcodeScanner
     private lateinit var database: AppDatabase
@@ -60,6 +65,12 @@ class MainActivity : AppCompatActivity() {
 
         previewView = findViewById(R.id.previewView)
         totalTextView = findViewById(R.id.totalTextView)
+        laserLine = findViewById(R.id.laserLine)
+        laserAnimator = ObjectAnimator.ofFloat(laserLine, View.TRANSLATION_Y, -120f, 120f).apply {
+            duration = 1500L
+            repeatMode = ValueAnimator.REVERSE
+            repeatCount = ValueAnimator.INFINITE
+        }
         cameraExecutor = Executors.newSingleThreadExecutor()
         barcodeScanner = BarcodeScanning.getClient()
         database = AppDatabase.getInstance(this)
@@ -125,6 +136,7 @@ class MainActivity : AppCompatActivity() {
                     imageAnalysis
                 )
                 isScanning = true
+                startLaserAnimation()
             } catch (e: Exception) {
                 Toast.makeText(this, "Gagal membuka kamera: ${e.message}", Toast.LENGTH_LONG).show()
             }
@@ -141,6 +153,20 @@ class MainActivity : AppCompatActivity() {
         if (isFinishing || isDestroyed) return
         isScanning = true
         startCamera()
+    }
+
+    private fun startLaserAnimation() {
+        if (laserAnimator.isPaused) {
+            laserAnimator.resume()
+        } else if (!laserAnimator.isRunning) {
+            laserAnimator.start()
+        }
+    }
+
+    private fun pauseLaserAnimation() {
+        if (laserAnimator.isRunning) {
+            laserAnimator.pause()
+        }
     }
 
     private fun toggleFlash() {
@@ -205,6 +231,8 @@ class MainActivity : AppCompatActivity() {
     private fun showProductBottomSheet(barcode: String, product: Product?) {
         if (isFinishing || isDestroyed) return
 
+        pauseLaserAnimation()
+
         val dialog = BottomSheetDialog(this)
         val view = layoutInflater.inflate(R.layout.bottom_sheet_product, null)
         dialog.setContentView(view)
@@ -232,6 +260,7 @@ class MainActivity : AppCompatActivity() {
                 ?.setBackgroundColor(Color.TRANSPARENT)
         }
         dialog.setOnDismissListener {
+            startLaserAnimation()
             resumeCamera()
         }
         dialog.show()
@@ -252,6 +281,7 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         isScanning = false
+        laserAnimator.cancel()
         cameraProvider?.unbindAll()
         cameraExecutor.shutdown()
         barcodeScanner.close()
