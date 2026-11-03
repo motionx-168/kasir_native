@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="bg_dark">#202124</color>
-    <color name="bg_sheet">#2D2D30</color>
-    <color name="accent_blue">#8AB4F8</color>
-    <color name="text_primary">#FFFFFF</color>
-    <color name="text_secondary">#A0A0A0</color>
-    <color name="laser_red">#FF0000</color>
-    <color name="scanner_blue">#2196F3</color>
-    <color name="scanner_overlay">#66000000</color>
-    <color name="circle_background">#4D000000</color>
-    <color name="circle_stroke">#80FFFFFF</color>
+    <!-- Digital Why Brand Colors -->
+    <color name="dw_teal">#00E5FF</color>          <!-- Bright Teal untuk aksen -->
+    <color name="dw_teal_dark">#00BFA5</color>    <!-- Green Teal standar -->
+    <color name="dw_dark_blue">#0F172A</color>    <!-- Dark Blue untuk background -->
+    
+    <!-- Backgrounds -->
+    <color name="bg_main">#0B1120</color>         <!-- Sangat gelap (Dark Navy) -->
+    <color name="bg_surface">#1E293B</color>      <!-- Dark Blue Surface -->
+    <color name="bg_sheet">#0F172A</color>        <!-- Dark Blue untuk Bottom Sheet -->
+    
+    <!-- Text -->
+    <color name="text_primary">#F8FAFC</color>    <!-- Putih bersih -->
+    <color name="text_secondary">#94A3B8</color>  <!-- Abu-abu kebiruan -->
+    <color name="text_price">#00E5FF</color>      <!-- Harga pakai Teal cerah -->
+    
+    <!-- Scanner -->
+    <color name="laser_red">#FF4B4B</color>
+    <color name="scanner_overlay">#660B1120</color>
 </resources>

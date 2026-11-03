@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/scanner_overlay">
@@ -18,6 +19,7 @@
             android:layout_height="48dp"
             android:layout_marginEnd="24dp"
             android:background="@drawable/circle_transparent"
+            android:backgroundTint="@color/bg_surface"
             android:contentDescription="Menu"
             android:padding="12dp"
             android:src="@drawable/ic_menu" />
@@ -28,6 +30,7 @@
             android:layout_height="48dp"
             android:layout_marginEnd="24dp"
             android:background="@drawable/circle_transparent"
+            android:backgroundTint="@color/bg_surface"
             android:contentDescription="Flash"
             android:padding="12dp"
             android:src="@drawable/ic_flash" />
@@ -37,6 +40,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="@drawable/circle_transparent"
+            android:backgroundTint="@color/bg_surface"
             android:contentDescription="Flip camera"
             android:padding="12dp"
             android:src="@drawable/ic_flip" />
@@ -64,5 +68,39 @@
             android:src="@drawable/laser_line" />
 
     </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@drawable/total_bar_bg"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/totalTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Total: Rp0 | 0 item"
+            android:textColor="@color/dw_teal"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/payButton"
+            android:layout_width="wrap_content"
+            android:layout_height="52dp"
+            android:background="@drawable/button_gradient"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:text="BAYAR"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:backgroundTint="@null" />
+
+    </LinearLayout>
 
 </FrameLayout>

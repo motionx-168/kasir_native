@@ -10,17 +10,4 @@
 
     <include layout="@layout/layout_scanner_overlay" />
 
-    <TextView
-        android:id="@+id/totalTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:background="#CC000000"
-        android:gravity="center"
-        android:padding="16dp"
-        android:text="Total: Rp0 | 0 item"
-        android:textColor="@color/text_primary"
-        android:textSize="20sp"
-        android:textStyle="bold" />
-
 </FrameLayout>

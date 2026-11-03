@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_bottom_sheet"
+    android:backgroundTint="@color/bg_sheet"
     android:orientation="vertical"
     android:paddingStart="24dp"
     android:paddingTop="24dp"
@@ -44,7 +45,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Rp0"
-        android:textColor="@color/scanner_blue"
+        android:textColor="@color/text_price"
         android:textSize="28sp"
         android:textStyle="bold" />
 
@@ -53,11 +54,11 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_marginTop="24dp"
+        android:background="@drawable/button_gradient"
         android:text="Add to Cart"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/text_primary"
         android:textSize="16sp"
         android:textStyle="bold"
-        app:backgroundTint="@color/scanner_blue"
-        app:cornerRadius="12dp" />
+        app:backgroundTint="@null" />
 
 </LinearLayout>
