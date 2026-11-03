@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/scanner_overlay">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:layout_marginTop="32dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/menuButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="24dp"
+            android:background="@drawable/circle_transparent"
+            android:contentDescription="Menu"
+            android:padding="12dp"
+            android:src="@drawable/ic_menu" />
+
+        <ImageButton
+            android:id="@+id/flashButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="24dp"
+            android:background="@drawable/circle_transparent"
+            android:contentDescription="Flash"
+            android:padding="12dp"
+            android:src="@drawable/ic_flash" />
+
+        <ImageButton
+            android:id="@+id/flipButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/circle_transparent"
+            android:contentDescription="Flip camera"
+            android:padding="12dp"
+            android:src="@drawable/ic_flip" />
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="260dp"
+        android:layout_height="260dp"
+        android:layout_gravity="center">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="Scan frame"
+            android:src="@drawable/scanner_frame" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/laser_line" />
+
+    </FrameLayout>
+
+</FrameLayout>
