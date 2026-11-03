@@ -14,9 +14,12 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -26,6 +29,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var resultTextView: TextView
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var barcodeScanner: BarcodeScanner
+    private lateinit var database: AppDatabase
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -44,6 +48,9 @@ class MainActivity : AppCompatActivity() {
         resultTextView = findViewById(R.id.resultTextView)
         cameraExecutor = Executors.newSingleThreadExecutor()
         barcodeScanner = BarcodeScanning.getClient()
+        database = AppDatabase.getInstance(this)
+
+        prepopulateDatabase()
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
             == PackageManager.PERMISSION_GRANTED
@@ -51,6 +58,23 @@ class MainActivity : AppCompatActivity() {
             startCamera()
         } else {
             requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
+
+    private fun prepopulateDatabase() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val dao = database.productDao()
+            val barcode = "8998866203043"
+            if (dao.findByBarcode(barcode) == null) {
+                dao.insert(
+                    Product(
+                        barcode = barcode,
+                        name = "Produk Test",
+                        price = 5000.0,
+                        stock = 10
+                    )
+                )
+            }
         }
     }
 
@@ -96,15 +120,25 @@ class MainActivity : AppCompatActivity() {
         barcodeScanner.process(image)
             .addOnSuccessListener { barcodes ->
                 barcodes.firstOrNull()?.rawValue?.let { value ->
-                    runOnUiThread {
-                        resultTextView.text = value
-                        Toast.makeText(this, value, Toast.LENGTH_SHORT).show()
-                    }
+                    handleBarcode(value)
                 }
             }
             .addOnCompleteListener {
                 imageProxy.close()
             }
+    }
+
+    private fun handleBarcode(barcode: String) {
+        lifecycleScope.launch {
+            val product = database.productDao().findByBarcode(barcode)
+            val message = if (product != null) {
+                "Product found: ${product.name} - Rp${product.price}"
+            } else {
+                "Product not found"
+            }
+            resultTextView.text = message
+            Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onDestroy() {
