@@ -3,6 +3,7 @@ package com.digitalwhy.kasir
 import android.Manifest
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
+import android.app.DatePickerDialog
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
@@ -38,6 +39,8 @@ import com.google.mlkit.vision.common.InputImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
+import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -304,12 +307,33 @@ class MainActivity : AppCompatActivity() {
 
         val view = layoutInflater.inflate(R.layout.dialog_add_product, null)
         val etName = view.findViewById<EditText>(R.id.etName)
+        val etCostPrice = view.findViewById<EditText>(R.id.etCostPrice)
         val etPrice = view.findViewById<EditText>(R.id.etPrice)
         val etStock = view.findViewById<EditText>(R.id.etStock)
+        val tvExpiryDate = view.findViewById<TextView>(R.id.tvExpiryDate)
 
         val alertDialog = AlertDialog.Builder(this)
             .setView(view)
             .create()
+
+        var expiryDate: String? = null
+
+        tvExpiryDate.setOnClickListener {
+            val calendar = Calendar.getInstance()
+            DatePickerDialog(
+                this,
+                { _, year, month, dayOfMonth ->
+                    calendar.set(year, month, dayOfMonth)
+                    expiryDate = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+                        .format(calendar.time)
+                    tvExpiryDate.text = expiryDate
+                    tvExpiryDate.setTextColor(Color.WHITE)
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            ).show()
+        }
 
         view.findViewById<View>(R.id.btnCancel).setOnClickListener {
             alertDialog.dismiss()
@@ -317,6 +341,7 @@ class MainActivity : AppCompatActivity() {
 
         view.findViewById<View>(R.id.btnSave).setOnClickListener {
             val name = etName.text.toString().trim()
+            val costPrice = etCostPrice.text.toString().trim().toDoubleOrNull() ?: 0.0
             val price = etPrice.text.toString().trim().toDoubleOrNull()
             val stock = etStock.text.toString().trim().toIntOrNull()
 
@@ -331,7 +356,9 @@ class MainActivity : AppCompatActivity() {
                         barcode = barcode,
                         name = name,
                         price = price,
-                        stock = stock
+                        stock = stock,
+                        costPrice = costPrice,
+                        expiryDate = expiryDate
                     )
                 )
                 runOnUiThread {
