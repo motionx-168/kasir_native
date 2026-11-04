@@ -1,5 +1,8 @@
 package com.digitalwhy.kasir
 
+import kotlinx.coroutines.launch
+import androidx.lifecycle.lifecycleScope
+
 import android.Manifest
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
@@ -250,8 +253,18 @@ class MainActivity : AppCompatActivity() {
         pauseCamera()
 
         lifecycleScope.launch {
-            val product = database.productDao().findByBarcode(barcode)
-            showProductBottomSheet(barcode, product)
+                try {
+                    val response = ApiClient.apiService.getProductByBarcode(barcode)
+                    val product = if (response.isSuccessful && response.body()?.status == "success") response.body()?.data else null
+                    runOnUiThread {
+                        showProductBottomSheet(barcode, product)
+                    }
+                } catch (e: Exception) {
+                    runOnUiThread {
+                        android.widget.Toast.makeText(this@MainActivity, "Error Jaringan: " + e.message, android.widget.Toast.LENGTH_LONG).show()
+                        showProductBottomSheet(barcode, null)
+                    }
+                }
         }
     }
 
