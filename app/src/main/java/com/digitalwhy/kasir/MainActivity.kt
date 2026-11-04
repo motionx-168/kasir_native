@@ -4,6 +4,7 @@ import android.Manifest
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -259,17 +260,23 @@ class MainActivity : AppCompatActivity() {
         val view = layoutInflater.inflate(R.layout.bottom_sheet_product, null)
         dialog.setContentView(view)
 
-        view.findViewById<TextView>(R.id.productNameTextView).text =
-            product?.name ?: "Product Not Found"
-        view.findViewById<TextView>(R.id.barcodeTextView).text = barcode
-        view.findViewById<TextView>(R.id.priceTextView).text =
-            product?.let { formatCurrency(it.price) } ?: "-"
-
+        val nameTextView = view.findViewById<TextView>(R.id.productNameTextView)
+        val barcodeTextView = view.findViewById<TextView>(R.id.barcodeTextView)
+        val priceTextView = view.findViewById<TextView>(R.id.priceTextView)
         val addToCartButton = view.findViewById<MaterialButton>(R.id.addToCartButton)
+
+        barcodeTextView.text = barcode
+
         if (product == null) {
-            addToCartButton.isEnabled = false
-            addToCartButton.text = "Product Not Found"
+            nameTextView.text = "Produk Tidak Ditemukan"
+            priceTextView.visibility = View.GONE
+            addToCartButton.text = "TUTUP"
+            addToCartButton.backgroundTintList =
+                ColorStateList.valueOf(Color.parseColor("#9E9E9E"))
+            addToCartButton.setOnClickListener { dialog.dismiss() }
         } else {
+            nameTextView.text = product.name
+            priceTextView.text = formatCurrency(product.price)
             addToCartButton.setOnClickListener {
                 cart.add(product)
                 updateTotal()
