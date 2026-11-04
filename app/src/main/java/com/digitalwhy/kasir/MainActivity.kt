@@ -363,9 +363,9 @@ class MainActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            lifecycleScope.launch(Dispatchers.IO) {
-                database.productDao().insert(
-                    Product(
+            lifecycleScope.launch {
+                try {
+                    val newProduct = Product(
                         barcode = barcode,
                         name = name,
                         price = price,
@@ -373,15 +373,20 @@ class MainActivity : AppCompatActivity() {
                         costPrice = costPrice,
                         expiryDate = expiryDate
                     )
-                )
-                runOnUiThread {
-                    alertDialog.dismiss()
-                    sheetDialog.dismiss()
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Produk Berhasil Ditambahkan",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    val response = ApiClient.apiService.addProduct(newProduct)
+                    runOnUiThread {
+                        if (response.isSuccessful) {
+                            alertDialog.dismiss()
+                            sheetDialog.dismiss()
+                            Toast.makeText(this@MainActivity, "Produk Berhasil Ditambahkan", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(this@MainActivity, "Gagal: " + response.message(), Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } catch (e: Exception) {
+                    runOnUiThread {
+                        Toast.makeText(this@MainActivity, "Error: " + e.message, Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }

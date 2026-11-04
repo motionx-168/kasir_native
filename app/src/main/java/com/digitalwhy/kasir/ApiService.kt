@@ -5,6 +5,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
+import retrofit2.http.POST
+import retrofit2.http.Body
 
 // Model untuk menangkap balasan JSON dari Laravel
 data class ProductResponse(
@@ -13,6 +15,9 @@ data class ProductResponse(
 )
 
 interface ApiService {
+    @POST("api/products")
+    suspend fun addProduct(@Body product: Product): Response<ProductResponse>
+
     @GET("api/products/{barcode}")
     suspend fun getProductByBarcode(@Path("barcode") barcode: String): Response<ProductResponse>
 }
