@@ -1,7 +1,7 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp" android:height="24dp" android:viewportWidth="100" android:viewportHeight="100">
-    <path android:pathData="M 30,10 L 15,10 L 10,15 L 10,30" android:strokeColor="@color/dw_teal_dark" android:strokeWidth="1.5" android:strokeLineCap="round" android:strokeLineJoin="round"/>
-    <path android:pathData="M 70,10 L 85,10 L 90,15 L 90,30" android:strokeColor="@color/dw_teal_dark" android:strokeWidth="1.5" android:strokeLineCap="round" android:strokeLineJoin="round"/>
-    <path android:pathData="M 10,70 L 10,85 L 15,90 L 30,90" android:strokeColor="@color/dw_teal_dark" android:strokeWidth="1.5" android:strokeLineCap="round" android:strokeLineJoin="round"/>
-    <path android:pathData="M 90,70 L 90,85 L 85,90 L 70,90" android:strokeColor="@color/dw_teal_dark" android:strokeWidth="1.5" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+    <path android:pathData="M 40,10 L 20,10 Q 10,10 10,20 L 10,40" android:strokeColor="@color/dw_teal" android:strokeWidth="2.5" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+    <path android:pathData="M 60,10 L 80,10 Q 90,10 90,20 L 90,40" android:strokeColor="@color/dw_teal" android:strokeWidth="2.5" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+    <path android:pathData="M 90,60 L 90,80 Q 90,90 80,90 L 60,90" android:strokeColor="@color/dw_teal" android:strokeWidth="2.5" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+    <path android:pathData="M 40,90 L 20,90 Q 10,90 10,80 L 10,60" android:strokeColor="@color/dw_teal" android:strokeWidth="2.5" android:strokeLineCap="round" android:strokeLineJoin="round"/>
 </vector>
