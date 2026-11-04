@@ -64,6 +64,7 @@
             android:layout_width="match_parent"
             android:layout_height="2dp"
             android:layout_gravity="center_vertical"
+            android:layout_marginHorizontal="10dp"
             android:contentDescription="Laser line"
             android:scaleType="fitXY"
             android:src="@drawable/laser_line" />
