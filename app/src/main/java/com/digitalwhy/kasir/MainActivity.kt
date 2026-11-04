@@ -95,6 +95,7 @@ class MainActivity : AppCompatActivity() {
         }
         findViewById<View>(R.id.flashButton).setOnClickListener { toggleFlash() }
         findViewById<View>(R.id.flipButton).setOnClickListener { flipCamera() }
+        btnBayar.setOnClickListener { checkout() }
 
         prepopulateDatabase()
         updateTotal()
@@ -303,6 +304,41 @@ class MainActivity : AppCompatActivity() {
         } else {
             @Suppress("DEPRECATION")
             vibrator.vibrate(100L)
+        }
+    }
+
+    private fun checkout() {
+        if (cart.isEmpty()) return
+
+        val items = cart.toList()
+        val total = items.sumOf { it.price }
+        val itemsSummary = items.groupBy { it.id }.values.joinToString(", ") { group ->
+            "${group.first().name} x${group.size}"
+        }
+
+        btnBayar.isEnabled = false
+        btnBayar.alpha = 0.5f
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            items.groupBy { it.id }.forEach { (_, group) ->
+                val product = group.first()
+                val newStock = (product.stock - group.size).coerceAtLeast(0)
+                database.productDao().updateProduct(product.copy(stock = newStock))
+            }
+
+            database.transactionDao().insert(
+                Transaction(
+                    timestamp = System.currentTimeMillis(),
+                    totalAmount = total,
+                    itemsSummary = itemsSummary
+                )
+            )
+
+            runOnUiThread {
+                cart.clear()
+                updateTotal()
+                Toast.makeText(this@MainActivity, "Pembayaran Berhasil!", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
