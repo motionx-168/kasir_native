@@ -427,7 +427,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val requestItems = items.groupBy { it.id }.map { (id, group) ->
-                    TransactionItemRequest(product_id = id, quantity = group.size)
+                    TransactionItemRequest(product_id = id.toInt(), quantity = group.size)
                 }
                 val request = TransactionRequest(items = requestItems)
                 val response = ApiClient.apiService.createTransaction(request)
