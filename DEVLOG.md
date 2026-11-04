@@ -1,2 +1,3 @@
 - 2026-11-03: 🎉 SUKSES TOTAL! Aplikasi Native Android "Hello Native Kasir!" berjalan sempurna di HP. Environment siap untuk koding fitur.
 - 2026-11-03: 🎉 SUKSES! Kamera, ML Kit Barcode, dan Room Database berjalan sempurna. Menampilkan "Product found".
+- 2026-11-04: SUKSES! Scanner feedback lengkap: Getar + Toast + Swap frame jadi Hijau saat scan.
