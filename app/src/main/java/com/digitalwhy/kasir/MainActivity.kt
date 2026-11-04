@@ -5,7 +5,10 @@ import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -40,6 +43,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var totalTextView: TextView
     private lateinit var btnBayar: MaterialButton
     private lateinit var laserLine: ImageView
+    private lateinit var scannerFrame: ImageView
     private lateinit var laserAnimator: ObjectAnimator
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var barcodeScanner: BarcodeScanner
@@ -69,6 +73,7 @@ class MainActivity : AppCompatActivity() {
         totalTextView = findViewById(R.id.totalTextView)
         btnBayar = findViewById(R.id.btnBayar)
         laserLine = findViewById(R.id.laserLine)
+        scannerFrame = findViewById(R.id.scannerFrame)
         laserAnimator = ObjectAnimator.ofFloat(laserLine, View.TRANSLATION_Y, -180f, 180f).apply {
             duration = 1500L
             repeatMode = ValueAnimator.REVERSE
@@ -225,6 +230,9 @@ class MainActivity : AppCompatActivity() {
         suppressedBarcode = barcode
         pauseCamera()
 
+        vibrateOnScan()
+        scannerFrame.setColorFilter(Color.parseColor("#4CAF50"))
+
         lifecycleScope.launch {
             val product = database.productDao().findByBarcode(barcode)
             showProductBottomSheet(barcode, product)
@@ -263,10 +271,27 @@ class MainActivity : AppCompatActivity() {
                 ?.setBackgroundColor(Color.TRANSPARENT)
         }
         dialog.setOnDismissListener {
+            scannerFrame.setColorFilter(ContextCompat.getColor(this, R.color.dw_teal))
             startLaserAnimation()
             resumeCamera()
         }
         dialog.show()
+    }
+
+    private fun vibrateOnScan() {
+        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            getSystemService(Vibrator::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            getSystemService(VIBRATOR_SERVICE) as? Vibrator
+        } ?: return
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createOneShot(100L, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            @Suppress("DEPRECATION")
+            vibrator.vibrate(100L)
+        }
     }
 
     private fun updateTotal() {
