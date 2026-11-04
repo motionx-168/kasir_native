@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.PorterDuff
 import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
@@ -233,7 +234,10 @@ class MainActivity : AppCompatActivity() {
 
         vibrateOnScan()
         runOnUiThread {
-            scannerFrame.setColorFilter(Color.parseColor("#4CAF50"))
+            scannerFrame.setColorFilter(
+                Color.parseColor("#4CAF50"),
+                PorterDuff.Mode.SRC_IN
+            )
             Toast.makeText(this, "Scan Berhasil", Toast.LENGTH_SHORT).show()
         }
 
