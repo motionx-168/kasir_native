@@ -4,7 +4,6 @@ import android.Manifest
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.pm.PackageManager
-import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -232,9 +231,7 @@ class MainActivity : AppCompatActivity() {
         vibrateOnScan()
         runOnUiThread {
             Toast.makeText(this, "Scan Berhasil", Toast.LENGTH_SHORT).show()
-            scannerFrame.setImageTintList(
-                ColorStateList.valueOf(Color.parseColor("#4CAF50"))
-            )
+            scannerFrame.setImageResource(R.drawable.scanner_frame_green)
         }
 
         suppressedBarcode = barcode
@@ -278,7 +275,7 @@ class MainActivity : AppCompatActivity() {
                 ?.setBackgroundColor(Color.TRANSPARENT)
         }
         dialog.setOnDismissListener {
-            scannerFrame.setImageTintList(null)
+            scannerFrame.setImageResource(R.drawable.scanner_frame)
             startLaserAnimation()
             resumeCamera()
         }
