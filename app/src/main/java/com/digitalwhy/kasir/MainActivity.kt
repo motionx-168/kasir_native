@@ -424,25 +424,31 @@ class MainActivity : AppCompatActivity() {
         btnBayar.isEnabled = false
         btnBayar.alpha = 0.5f
 
-        lifecycleScope.launch(Dispatchers.IO) {
-            items.groupBy { it.id }.forEach { (_, group) ->
-                val product = group.first()
-                val newStock = (product.stock - group.size).coerceAtLeast(0)
-                database.productDao().updateProduct(product.copy(stock = newStock))
-            }
-
-            database.transactionDao().insert(
-                Transaction(
-                    timestamp = System.currentTimeMillis(),
-                    totalAmount = total,
-                    itemsSummary = itemsSummary
-                )
-            )
-
-            runOnUiThread {
-                cart.clear()
-                updateTotal()
-                Toast.makeText(this@MainActivity, "Pembayaran Berhasil!", Toast.LENGTH_SHORT).show()
+        lifecycleScope.launch {
+            try {
+                val requestItems = items.groupBy { it.id }.map { (id, group) ->
+                    TransactionItemRequest(product_id = id, quantity = group.size)
+                }
+                val request = TransactionRequest(items = requestItems)
+                val response = ApiClient.apiService.createTransaction(request)
+                
+                runOnUiThread {
+                    if (response.isSuccessful && response.body()?.status == "success") {
+                        cart.clear()
+                        updateTotal()
+                        Toast.makeText(this@MainActivity, "Pembayaran Berhasil (Laravel)!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this@MainActivity, "Gagal: " + response.message(), Toast.LENGTH_SHORT).show()
+                        btnBayar.isEnabled = true
+                        btnBayar.alpha = 1f
+                    }
+                }
+            } catch (e: Exception) {
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity, "Error Jaringan: " + e.message, Toast.LENGTH_SHORT).show()
+                    btnBayar.isEnabled = true
+                    btnBayar.alpha = 1f
+                }
             }
         }
     }

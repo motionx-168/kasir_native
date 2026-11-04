@@ -2,3 +2,4 @@
 - 2026-11-03: 🎉 SUKSES! Kamera, ML Kit Barcode, dan Room Database berjalan sempurna. Menampilkan "Product found".
 - 2026-11-04: SUKSES! Scanner feedback lengkap: Getar + Toast + Swap frame jadi Hijau saat scan.
 - 2026-11-04: UI Scanner disempurnakan: Overlay lubang gelap, frame tipis, status bar transparan, dan feedback getar/warna berjalan sempurna.
+- 2026-11-05: SUKSES INTEGRASI LARAVEL! Android bisa POST produk baru ke API Laravel.
