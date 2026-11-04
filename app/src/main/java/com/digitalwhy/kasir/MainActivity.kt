@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.os.VibratorManager
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -231,7 +232,10 @@ class MainActivity : AppCompatActivity() {
         pauseCamera()
 
         vibrateOnScan()
-        scannerFrame.setColorFilter(Color.parseColor("#4CAF50"))
+        runOnUiThread {
+            scannerFrame.setColorFilter(Color.parseColor("#4CAF50"))
+            Toast.makeText(this, "Scan Berhasil", Toast.LENGTH_SHORT).show()
+        }
 
         lifecycleScope.launch {
             val product = database.productDao().findByBarcode(barcode)
@@ -271,7 +275,7 @@ class MainActivity : AppCompatActivity() {
                 ?.setBackgroundColor(Color.TRANSPARENT)
         }
         dialog.setOnDismissListener {
-            scannerFrame.setColorFilter(ContextCompat.getColor(this, R.color.dw_teal))
+            scannerFrame.clearColorFilter()
             startLaserAnimation()
             resumeCamera()
         }
@@ -280,7 +284,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun vibrateOnScan() {
         val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            getSystemService(Vibrator::class.java)
+            val vibratorManager =
+                getSystemService(VibratorManager::class.java) as? VibratorManager
+            vibratorManager?.defaultVibrator
         } else {
             @Suppress("DEPRECATION")
             getSystemService(VIBRATOR_SERVICE) as? Vibrator
