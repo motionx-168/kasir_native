@@ -4,7 +4,6 @@ import android.Manifest
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.pm.PackageManager
-import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -12,10 +11,12 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import android.view.View
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
@@ -270,10 +271,12 @@ class MainActivity : AppCompatActivity() {
         if (product == null) {
             nameTextView.text = "Produk Tidak Ditemukan"
             priceTextView.visibility = View.GONE
-            addToCartButton.text = "TUTUP"
-            addToCartButton.backgroundTintList =
-                ColorStateList.valueOf(Color.parseColor("#9E9E9E"))
-            addToCartButton.setOnClickListener { dialog.dismiss() }
+            addToCartButton.text = "TAMBAH PRODUK"
+            addToCartButton.backgroundTintList = null
+            addToCartButton.setBackgroundResource(R.drawable.button_gradient)
+            addToCartButton.setOnClickListener {
+                showAddProductDialog(barcode, dialog)
+            }
         } else {
             nameTextView.text = product.name
             priceTextView.text = formatCurrency(product.price)
@@ -294,6 +297,56 @@ class MainActivity : AppCompatActivity() {
             resumeCamera()
         }
         dialog.show()
+    }
+
+    private fun showAddProductDialog(barcode: String, sheetDialog: BottomSheetDialog) {
+        if (isFinishing || isDestroyed) return
+
+        val view = layoutInflater.inflate(R.layout.dialog_add_product, null)
+        val etName = view.findViewById<EditText>(R.id.etName)
+        val etPrice = view.findViewById<EditText>(R.id.etPrice)
+        val etStock = view.findViewById<EditText>(R.id.etStock)
+
+        val alertDialog = AlertDialog.Builder(this)
+            .setView(view)
+            .create()
+
+        view.findViewById<View>(R.id.btnCancel).setOnClickListener {
+            alertDialog.dismiss()
+        }
+
+        view.findViewById<View>(R.id.btnSave).setOnClickListener {
+            val name = etName.text.toString().trim()
+            val price = etPrice.text.toString().trim().toDoubleOrNull()
+            val stock = etStock.text.toString().trim().toIntOrNull()
+
+            if (name.isEmpty() || price == null || stock == null) {
+                Toast.makeText(this, "Isi data dengan benar", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                database.productDao().insert(
+                    Product(
+                        barcode = barcode,
+                        name = name,
+                        price = price,
+                        stock = stock
+                    )
+                )
+                runOnUiThread {
+                    alertDialog.dismiss()
+                    sheetDialog.dismiss()
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Produk Berhasil Ditambahkan",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+
+        alertDialog.show()
     }
 
     private fun vibrateOnScan() {
