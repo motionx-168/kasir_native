@@ -356,35 +356,52 @@ class MainActivity : AppCompatActivity() {
             val name = etName.text.toString().trim()
             val costPrice = etCostPrice.text.toString().trim().toDoubleOrNull() ?: 0.0
             val price = etPrice.text.toString().trim().toDoubleOrNull()
-            val stock = etStock.text.toString().trim().toIntOrNull()
+            val stock = etStock.text.toString().trim().toDoubleOrNull()
 
             if (name.isEmpty() || price == null || stock == null) {
                 Toast.makeText(this, "Isi data dengan benar", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-                    val newProduct = Product(
-                        barcode = barcode,
-                        name = name,
-                        price = price,
-                        stock = stock.toDouble(),
-                        costPrice = costPrice,
-                        expiryDate = expiryDate,
-                        type = "barcode",
-                        icon = "package"
-                    )
+            val newProduct = Product(
+                barcode = barcode,
+                name = name,
+                price = price,
+                stock = stock,
+                costPrice = costPrice,
+                expiryDate = expiryDate,
+                type = "barcode",
+                icon = "package"
+            )
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                try {
+                    val response = ApiClient.apiService.addProduct(newProduct)
                     runOnUiThread {
                         if (response.isSuccessful) {
                             alertDialog.dismiss()
                             sheetDialog.dismiss()
-                            Toast.makeText(this@MainActivity, "Produk Berhasil Ditambahkan", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Produk Berhasil Ditambahkan",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         } else {
-                            Toast.makeText(this@MainActivity, "Gagal: " + response.message(), Toast.LENGTH_SHORT).show()
+                            val errorBody = response.errorBody()?.string()
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Gagal: " + (errorBody ?: response.message()),
+                                Toast.LENGTH_LONG
+                            ).show()
                         }
                     }
                 } catch (e: Exception) {
                     runOnUiThread {
-                        Toast.makeText(this@MainActivity, "Error: " + e.message, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Error: " + e.message,
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }
