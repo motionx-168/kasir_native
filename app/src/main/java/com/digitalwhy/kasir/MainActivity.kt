@@ -1,8 +1,5 @@
 package com.digitalwhy.kasir
 
-import kotlinx.coroutines.launch
-import androidx.lifecycle.lifecycleScope
-
 import android.Manifest
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
@@ -127,7 +124,7 @@ class MainActivity : AppCompatActivity() {
                         barcode = barcode,
                         name = "Produk Test",
                         price = 5000.0,
-                        stock = 10
+                        stock = 10.0
                     )
                 )
             }
