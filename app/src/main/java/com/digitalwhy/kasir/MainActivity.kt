@@ -329,6 +329,10 @@ class MainActivity : AppCompatActivity() {
             .setView(view)
             .create()
 
+        alertDialog.window?.setBackgroundDrawable(
+            android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+        )
+
         var expiryDate: String? = null
 
         tvExpiryDate.setOnClickListener {
