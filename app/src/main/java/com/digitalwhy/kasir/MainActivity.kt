@@ -116,17 +116,20 @@ class MainActivity : AppCompatActivity() {
 
     private fun prepopulateDatabase() {
         lifecycleScope.launch(Dispatchers.IO) {
-            val dao = database.productDao()
-            val barcode = "8998866203043"
-            if (dao.findByBarcode(barcode) == null) {
-                dao.insert(
-                    Product(
-                        barcode = barcode,
-                        name = "Produk Test",
-                        price = 5000.0,
-                        stock = 10.0
+            try {
+                val dao = database.productDao()
+                val barcode = "8998866203043"
+                if (dao.findByBarcode(barcode) == null) {
+                    dao.insert(
+                        Product(
+                            barcode = barcode,
+                            name = "Produk Test",
+                            price = 5000.0,
+                            stock = 10.0
+                        )
                     )
-                )
+                }
+            } catch (_: Exception) {
             }
         }
     }
