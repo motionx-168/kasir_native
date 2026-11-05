@@ -1,25 +1,32 @@
 package com.digitalwhy.kasir
 
-import androidx.room.Dao
 import androidx.room.Entity
-import androidx.room.Insert
 import androidx.room.PrimaryKey
-import androidx.room.Query
 
 @Entity(tableName = "transactions")
 data class Transaction(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val timestamp: Long,
     val totalAmount: Double,
-    val itemsSummary: String
+    val itemsSummary: String,
+    val isSynced: Boolean = false
 )
 
-@Dao
+// Pindahkan interface TransactionDao ke sini (seperti aslinya)
+@androidx.room.Dao
 interface TransactionDao {
+    @androidx.room.Insert(onConflict = androidx.room.OnConflictStrategy.REPLACE)
+    suspend fun insert(transaction: Transaction)
 
-    @Insert
-    suspend fun insert(transaction: Transaction): Long
+    @androidx.room.Query("SELECT * FROM transactions ORDER BY timestamp DESC")
+    suspend fun getAll(): List<Transaction>
 
-    @Query("SELECT * FROM transactions WHERE timestamp >= :start AND timestamp < :end")
-    suspend fun getTransactionsBetween(start: Long, end: Long): List<Transaction>
+    @androidx.room.Query("DELETE FROM transactions WHERE id = :id")
+    suspend fun deleteById(id: Int)
+    
+    @androidx.room.Query("SELECT * FROM transactions WHERE isSynced = 0")
+    suspend fun getUnsynced(): List<Transaction>
+    
+    @androidx.room.Update
+    suspend fun update(transaction: Transaction)
 }
