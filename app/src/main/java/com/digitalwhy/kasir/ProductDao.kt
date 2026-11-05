@@ -8,16 +8,15 @@ import androidx.room.Update
 
 @Dao
 interface ProductDao {
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(product: Product): Long
+    @Query("SELECT * FROM products")
+    suspend fun getAll(): List<Product>
 
     @Query("SELECT * FROM products WHERE barcode = :barcode LIMIT 1")
     suspend fun findByBarcode(barcode: String): Product?
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(products: List<Product>)
+
     @Update
     suspend fun updateProduct(product: Product)
-
-    @Query("SELECT * FROM products")
-    suspend fun getAllProducts(): List<Product>
 }

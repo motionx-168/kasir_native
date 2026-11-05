@@ -75,6 +75,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        syncProducts()
         WindowCompat.setDecorFitsSystemWindows(window, false)
         window.statusBarColor = Color.TRANSPARENT
         WindowCompat.getInsetsController(window, window.decorView)
@@ -252,21 +253,12 @@ class MainActivity : AppCompatActivity() {
         suppressedBarcode = barcode
         pauseCamera()
 
-        lifecycleScope.launch {
-                try {
-                    val response = ApiClient.apiService.getProductByBarcode(barcode)
-                    val product = if (response.isSuccessful && response.body()?.status == "success") response.body()?.data else null
-                    runOnUiThread {
-                        showProductBottomSheet(barcode, product)
-                    }
-                } catch (e: Exception) {
-                    runOnUiThread {
-                        android.widget.Toast.makeText(this@MainActivity, "Error Jaringan: " + e.message, android.widget.Toast.LENGTH_LONG).show()
-                        showProductBottomSheet(barcode, null)
-                    }
+            lifecycleScope.launch {
+                val product = database.productDao().findByBarcode(barcode)
+                runOnUiThread {
+                    showProductBottomSheet(barcode, product)
                 }
-        }
-    }
+            }
 
     private fun showProductBottomSheet(barcode: String, product: Product?) {
         if (isFinishing || isDestroyed) return
@@ -502,5 +494,20 @@ class MainActivity : AppCompatActivity() {
         cameraProvider?.unbindAll()
         cameraExecutor.shutdown()
         barcodeScanner.close()
+    }
+
+    // FUNGSI BARU UNTUK SINKRONISASI PRODUK DARI LARAVEL KE ROOM DB
+    private fun syncProducts() {
+        lifecycleScope.launch {
+            try {
+                val response = ApiClient.apiService.getAllProducts()
+                if (response.isSuccessful && response.body()?.status == "success") {
+                    val products = response.body()?.data ?: emptyList()
+                    database.productDao().insertAll(products)
+                }
+            } catch (e: Exception) {
+                // Abaikan error jika offline. Aplikasi tetap bisa pakai data lama.
+            }
+        }
     }
 }
