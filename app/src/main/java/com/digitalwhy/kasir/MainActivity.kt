@@ -260,6 +260,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
+}
     private fun showProductBottomSheet(barcode: String, product: Product?) {
         if (isFinishing || isDestroyed) return
 
