@@ -363,17 +363,16 @@ class MainActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            lifecycleScope.launch {
-                try {
                     val newProduct = Product(
                         barcode = barcode,
                         name = name,
                         price = price,
-                        stock = stock,
+                        stock = stock.toDouble(),
                         costPrice = costPrice,
-                        expiryDate = expiryDate
+                        expiryDate = expiryDate,
+                        type = "barcode",
+                        icon = "package"
                     )
-                    val response = ApiClient.apiService.addProduct(newProduct)
                     runOnUiThread {
                         if (response.isSuccessful) {
                             alertDialog.dismiss()
