@@ -12,6 +12,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null
+        
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -23,5 +24,8 @@ abstract class AppDatabase : RoomDatabase() {
                 instance
             }
         }
+
+        // Tambahkan fungsi ini agar sesuai dengan pemanggilan di MainActivity
+        fun getInstance(context: Context): AppDatabase = getDatabase(context)
     }
 }
