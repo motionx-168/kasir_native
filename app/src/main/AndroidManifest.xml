@@ -23,7 +23,6 @@
         </activity>
         
         <!-- Dashboard disembunyikan (tidak muncul di menu HP) -->
-        <activity android:name=".DashboardActivity" android:exported="false" />
         
     </application>
 </manifest>
