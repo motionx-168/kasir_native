@@ -12,6 +12,7 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import android.view.View
+import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
@@ -31,8 +32,11 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
@@ -44,6 +48,8 @@ import java.util.Calendar
 import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+
+data class CartItem(val product: Product, val quantity: Double)
 
 class MainActivity : AppCompatActivity() {
 
@@ -62,7 +68,7 @@ class MainActivity : AppCompatActivity() {
     private var lensFacing = CameraSelector.LENS_FACING_BACK
     private var isScanning = true
     private var suppressedBarcode: String? = null
-    private val cart = mutableListOf<Product>()
+    private val cart = mutableListOf<CartItem>()
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -102,6 +108,9 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.flashButton).setOnClickListener { toggleFlash() }
         findViewById<View>(R.id.flipButton).setOnClickListener { flipCamera() }
         btnBayar.setOnClickListener { checkout() }
+        findViewById<FloatingActionButton>(R.id.fabCatalog).setOnClickListener {
+            showCatalog()
+        }
 
         prepopulateDatabase()
         updateTotal()
@@ -290,7 +299,7 @@ class MainActivity : AppCompatActivity() {
             nameTextView.text = product.name
             priceTextView.text = formatCurrency(product.price)
             addToCartButton.setOnClickListener {
-                cart.add(product)
+                cart.add(CartItem(product, 1.0))
                 updateTotal()
                 dialog.dismiss()
             }
@@ -306,6 +315,122 @@ class MainActivity : AppCompatActivity() {
             resumeCamera()
         }
         dialog.show()
+    }
+
+    private fun showCatalog() {
+        if (isFinishing || isDestroyed) return
+
+        pauseLaserAnimation()
+        pauseCamera()
+
+        lifecycleScope.launch {
+            val products = try {
+                database.productDao().getAll()
+                    .filter { it.type == "weighted" || it.type == "unit" }
+            } catch (e: Exception) {
+                emptyList()
+            }
+
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                if (products.isEmpty()) {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Belum ada produk katalog",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    scannerFrame.setImageResource(R.drawable.scanner_frame)
+                    startLaserAnimation()
+                    resumeCamera()
+                } else {
+                    showCatalogBottomSheet(products)
+                }
+            }
+        }
+    }
+
+    private fun showCatalogBottomSheet(products: List<Product>) {
+        if (isFinishing || isDestroyed) return
+
+        val dialog = BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_catalog, null)
+        dialog.setContentView(view)
+
+        val recyclerView = view.findViewById<RecyclerView>(R.id.rvCatalog)
+        recyclerView.layoutManager = GridLayoutManager(this, 3)
+        recyclerView.adapter = object : RecyclerView.Adapter<CatalogViewHolder>() {
+            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CatalogViewHolder {
+                val itemView = layoutInflater.inflate(R.layout.item_catalog_grid, parent, false)
+                return CatalogViewHolder(itemView)
+            }
+
+            override fun getItemCount(): Int = products.size
+
+            override fun onBindViewHolder(holder: CatalogViewHolder, position: Int) {
+                val product = products[position]
+                holder.icon.setImageResource(iconResFor(product.icon))
+                holder.name.text = product.name
+                holder.itemView.setOnClickListener {
+                    showWeightInputDialog(product, dialog)
+                }
+            }
+        }
+
+        dialog.setOnShowListener {
+            dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+                ?.setBackgroundColor(Color.TRANSPARENT)
+        }
+        dialog.setOnDismissListener {
+            scannerFrame.setImageResource(R.drawable.scanner_frame)
+            startLaserAnimation()
+            resumeCamera()
+        }
+        dialog.show()
+    }
+
+    private fun showWeightInputDialog(product: Product, sheetDialog: BottomSheetDialog) {
+        if (isFinishing || isDestroyed) return
+
+        val view = layoutInflater.inflate(R.layout.dialog_input_weight, null)
+        val tvProductName = view.findViewById<TextView>(R.id.tvDialogProductName)
+        val etWeight = view.findViewById<EditText>(R.id.etWeight)
+
+        tvProductName.text = product.name
+
+        val alertDialog = AlertDialog.Builder(this)
+            .setView(view)
+            .create()
+
+        alertDialog.window?.setBackgroundDrawable(
+            android.graphics.drawable.ColorDrawable(Color.TRANSPARENT)
+        )
+
+        view.findViewById<View>(R.id.btnCancelWeight).setOnClickListener {
+            alertDialog.dismiss()
+        }
+
+        view.findViewById<View>(R.id.btnAddWeight).setOnClickListener {
+            val parsed = etWeight.text.toString().trim().toDoubleOrNull()
+            val weight = if (parsed != null && parsed > 0.0) parsed else 1.0
+            cart.add(CartItem(product, weight))
+            updateTotal()
+            alertDialog.dismiss()
+            sheetDialog.dismiss()
+        }
+
+        alertDialog.show()
+    }
+
+    private fun iconResFor(icon: String?): Int = when (icon) {
+        "egg" -> R.drawable.ic_lucide_egg
+        "milk" -> R.drawable.ic_lucide_milk
+        "wheat" -> R.drawable.ic_lucide_wheat
+        else -> R.drawable.ic_lucide_package
+    }
+
+    private class CatalogViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val icon: ImageView = view.findViewById(R.id.ivCatalogIcon)
+        val name: TextView = view.findViewById(R.id.tvCatalogName)
     }
 
     private fun showAddProductDialog(barcode: String, sheetDialog: BottomSheetDialog) {
@@ -429,18 +554,17 @@ class MainActivity : AppCompatActivity() {
         if (cart.isEmpty()) return
 
         val items = cart.toList()
-        val total = items.sumOf { it.price }
-        val itemsSummary = items.groupBy { it.id }.values.joinToString(", ") { group ->
-            "${group.first().name} x${group.size}"
-        }
 
         btnBayar.isEnabled = false
         btnBayar.alpha = 0.5f
 
         lifecycleScope.launch {
             try {
-                val requestItems = items.groupBy { it.id }.map { (id, group) ->
-                    TransactionItemRequest(product_id = id, quantity = group.size.toDouble())
+                val requestItems = items.groupBy { it.product.id }.map { (id, group) ->
+                    TransactionItemRequest(
+                        product_id = id,
+                        quantity = group.sumOf { it.quantity }
+                    )
                 }
                 val request = TransactionRequest(items = requestItems)
                 val response = ApiClient.apiService.createTransaction(request)
@@ -467,7 +591,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateTotal() {
-        val total = cart.sumOf { it.price }
+        val total = cart.sumOf { it.product.price * it.quantity }
         totalTextView.text = formatCurrency(total)
 
         if (total <= 0.0) {
